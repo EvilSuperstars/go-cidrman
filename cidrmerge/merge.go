@@ -14,6 +14,13 @@ import (
 // MergeIPNets accepts a list of IP networks and merges them into the smallest possible list of IPNets.
 // It merges adjacent subnets where possible, those contained within others and removes any duplicates.
 func MergeIPNets(networks []*net.IPNet) ([]*net.IPNet, error) {
+	if networks == nil {
+		return nil, nil
+	}
+	if len(networks) == 0 {
+		return make([]*net.IPNet, 0), nil
+	}
+
 	var blocks cidrBlocks
 	for _, network := range networks {
 		blocks = append(blocks, newBlock(network))
@@ -54,6 +61,13 @@ func MergeIPNets(networks []*net.IPNet) ([]*net.IPNet, error) {
 
 // MergeCIDRs accepts a list of CIDR blocks and merges them into the smallest possible list of CIDRs.
 func MergeCIDRs(cidrs []string) ([]string, error) {
+	if cidrs == nil {
+		return nil, nil
+	}
+	if len(cidrs) == 0 {
+		return make([]string, 0), nil
+	}
+
 	var networks []*net.IPNet
 	for _, cidr := range cidrs {
 		_, network, err := net.ParseCIDR(cidr)
