@@ -4,11 +4,10 @@
 package cidrmerge
 
 import (
+	"fmt"
 	"math/big"
 	"net"
 	"sort"
-
-	"github.com/apparentlymart/go-cidr/cidr"
 )
 
 // MergeIPNets accepts a list of IP networks and merges them into the smallest possible list of IPNets.
@@ -106,9 +105,9 @@ func newBlock(network *net.IPNet) *cidrBlock {
 		block.isIPv4 = true
 	}
 
-	first, last := cidr.AddressRange(network)
-	block.first = ipToInt(first)
-	block.last = ipToInt(last)
+	first, last := addressRange(network)
+	block.first, _ = ipToInt(first)
+	block.last, _ = ipToInt(last)
 
 	return &block
 }
@@ -154,13 +153,57 @@ func (c cidrBlocks) Swap(i, j int) {
 	c[i], c[j] = c[j], c[i]
 }
 
-// Lifted from github.com/apparentlymart/go-cidr/cidr/wrangling.go.
-func ipToInt(ip net.IP) *big.Int {
-	val := &big.Int{}
-	val.SetBytes([]byte(ip))
-	return val
-}
-
 func ipRangeToNets(first, last *big.Int) []*net.IPNet {
 	return nil
+}
+
+// Lifted from github.com/apparentlymart/go-cidr/cidr/cidr.go.
+// AddressRange returns the first and last addresses in the given CIDR range.
+func addressRange(network *net.IPNet) (net.IP, net.IP) {
+	// the first IP is easy
+	firstIP := network.IP
+
+	// the last IP is the network address OR NOT the mask address
+	prefixLen, bits := network.Mask.Size()
+	if prefixLen == bits {
+		// Easy!
+		// But make sure that our two slices are distinct, since they
+		// would be in all other cases.
+		lastIP := make([]byte, len(firstIP))
+		copy(lastIP, firstIP)
+		return firstIP, lastIP
+	}
+
+	firstIPInt, bits := ipToInt(firstIP)
+	hostLen := uint(bits) - uint(prefixLen)
+	lastIPInt := big.NewInt(1)
+	lastIPInt.Lsh(lastIPInt, hostLen)
+	lastIPInt.Sub(lastIPInt, big.NewInt(1))
+	lastIPInt.Or(lastIPInt, firstIPInt)
+
+	return firstIP, intToIP(lastIPInt, bits)
+}
+
+// Lifted from github.com/apparentlymart/go-cidr/cidr/wrangling.go.
+func ipToInt(ip net.IP) (*big.Int, int) {
+	val := &big.Int{}
+	val.SetBytes([]byte(ip))
+	if len(ip) == net.IPv4len {
+		return val, 32
+	} else if len(ip) == net.IPv6len {
+		return val, 128
+	} else {
+		panic(fmt.Errorf("Unsupported address length %d", len(ip)))
+	}
+}
+
+func intToIP(ipInt *big.Int, bits int) net.IP {
+	ipBytes := ipInt.Bytes()
+	ret := make([]byte, bits/8)
+	// Pack our IP bytes into the end of the return array,
+	// since big.Int.Bytes() removes front zero padding.
+	for i := 1; i <= len(ipBytes); i++ {
+		ret[len(ret)-i] = ipBytes[len(ipBytes)-i]
+	}
+	return net.IP(ret)
 }
