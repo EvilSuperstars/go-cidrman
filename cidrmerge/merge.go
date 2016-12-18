@@ -1,5 +1,5 @@
-// CIDR merging.
-// Inspired by the Python netaddr cidr_merge function (https://netaddr.readthedocs.io/en/latest/tutorial_01.html).
+// Inspired by the Python netaddr cidr_merge function
+// https://netaddr.readthedocs.io/en/latest/api.html#netaddr.cidr_merge.
 
 package cidrmerge
 
@@ -9,6 +9,17 @@ import (
 	"net"
 	"sort"
 )
+
+type ipNets []*net.IPNet
+
+func (nets ipNets) toCIDRs() []string {
+	var cidrs []string
+	for _, net := range nets {
+		cidrs = append(cidrs, net.String())
+	}
+
+	return cidrs
+}
 
 // MergeIPNets accepts a list of IP networks and merges them into the smallest possible list of IPNets.
 // It merges adjacent subnets where possible, those contained within others and removes any duplicates.
@@ -80,12 +91,7 @@ func MergeCIDRs(cidrs []string) ([]string, error) {
 		return nil, err
 	}
 
-	var mergedCIDRs []string
-	for _, network := range mergedNets {
-		mergedCIDRs = append(mergedCIDRs, network.String())
-	}
-
-	return mergedCIDRs, nil
+	return ipNets(mergedNets).toCIDRs(), nil
 }
 
 type cidrBlock struct {
