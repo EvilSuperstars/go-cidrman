@@ -29,10 +29,18 @@ func TestIPRangeToCIDRs(t *testing.T) {
 			Error:  true,
 		},
 		{
-			Lo:     "192.168.1.1",
-			Hi:     "2001:db8::/76",
+			Lo:     "0.0.0.1",
+			Hi:     "2001:0db8:0000:0000:0000:ff00:0042:8329",
 			Output: nil,
 			Error:  true,
+		},
+		{
+			Lo: "192.168.1.1",
+			Hi: "192.168.1.1",
+			Output: []string{
+				"192.168.1.1/32",
+			},
+			Error: false,
 		},
 		{
 			Lo: "192.168.1.1",
@@ -46,6 +54,7 @@ func TestIPRangeToCIDRs(t *testing.T) {
 			},
 			Error: false,
 		},
+		// Worst case.
 		{
 			Lo: "0.0.0.1",
 			Hi: "255.255.255.254",

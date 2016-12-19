@@ -137,7 +137,7 @@ func merge4(blocks cidrBlock4s) ([]*net.IPNet, error) {
 
 	// Coalesce overlapping blocks.
 	for i := len(blocks) - 1; i > 0; i-- {
-		if blocks[i].first < blocks[i-1].last {
+		if blocks[i].first <= blocks[i-1].last+1 {
 			blocks[i-1].last = blocks[i].last
 			if blocks[i].first < blocks[i-1].first {
 				blocks[i-1].first = blocks[i].first
