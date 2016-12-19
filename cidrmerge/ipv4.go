@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
+	"sort"
 )
 
 // ipv4ToUInt32 converts an IPv4 address to an unsigned 32-bit integer.
@@ -77,4 +78,85 @@ func splitRange4(addr uint32, prefix uint, lo, hi uint32, cidrs *[]*net.IPNet) e
 		}
 		return splitRange4(upperHalf, prefix, upperHalf, hi, cidrs)
 	}
+}
+
+// IPv4 CIDR block.
+
+type cidrBlock4 struct {
+	first uint32
+	last  uint32
+}
+
+type cidrBlock4s []*cidrBlock4
+
+func newBlock4(ip net.IP, mask net.IPMask) *cidrBlock4 {
+	var block cidrBlock4
+
+	block.first = ipv4ToUInt32(ip)
+	prefix, _ := mask.Size()
+	block.last = broadcast4(block.first, uint(prefix))
+
+	return &block
+}
+
+// Sort interface.
+
+func (c cidrBlock4s) Len() int {
+	return len(c)
+}
+
+func (c cidrBlock4s) Less(i, j int) bool {
+	lhs := c[i]
+	rhs := c[j]
+
+	// By last IP in the range.
+	if lhs.last < rhs.last {
+		return true
+	} else if lhs.last > rhs.last {
+		return false
+	}
+
+	// Then by first IP in the range.
+	if lhs.first < rhs.first {
+		return true
+	} else if lhs.first > rhs.first {
+		return false
+	}
+
+	return false
+}
+
+func (c cidrBlock4s) Swap(i, j int) {
+	c[i], c[j] = c[j], c[i]
+}
+
+// merge4 accepts a list of IPv4 networks and merges them into the smallest possible list of IPNets.
+// It merges adjacent subnets where possible, those contained within others and removes any duplicates.
+func merge4(blocks cidrBlock4s) ([]*net.IPNet, error) {
+	sort.Sort(blocks)
+
+	// Coalesce overlapping blocks.
+	for i := len(blocks) - 1; i > 0; i-- {
+		if blocks[i].first < blocks[i-1].last {
+			blocks[i-1].last = blocks[i].last
+			if blocks[i].first < blocks[i-1].first {
+				blocks[i-1].first = blocks[i].first
+			}
+			blocks[i] = nil
+		}
+	}
+
+	var merged []*net.IPNet
+	for _, block := range blocks {
+		if block == nil {
+			continue
+		}
+
+		err := splitRange4(0, 0, block.first, block.last, &merged)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return merged, nil
 }

@@ -1,3 +1,5 @@
+// go test -v -run="TestMergeCIDRs"
+
 package cidrmerge
 
 import (
