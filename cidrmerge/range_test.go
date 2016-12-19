@@ -17,6 +17,24 @@ func TestIPRangeToCIDRs(t *testing.T) {
 
 	testCases := []TestCase{
 		{
+			Lo:     "abcdefgh",
+			Hi:     "",
+			Output: nil,
+			Error:  true,
+		},
+		{
+			Lo:     "192.168.1.12",
+			Hi:     "192.168.1.11",
+			Output: nil,
+			Error:  true,
+		},
+		{
+			Lo:     "192.168.1.1",
+			Hi:     "2001:db8::/76",
+			Output: nil,
+			Error:  true,
+		},
+		{
 			Lo: "192.168.1.1",
 			Hi: "192.168.1.12",
 			Output: []string{
@@ -94,6 +112,14 @@ func TestIPRangeToCIDRs(t *testing.T) {
 				"255.255.255.248/30",
 				"255.255.255.252/31",
 				"255.255.255.254/32",
+			},
+			Error: false,
+		},
+		{
+			Lo: "0.0.0.0",
+			Hi: "255.255.255.255",
+			Output: []string{
+				"0.0.0.0/0",
 			},
 			Error: false,
 		},

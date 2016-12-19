@@ -28,7 +28,7 @@ func IPRangeToIPNets(start, end net.IP) ([]*net.IPNet, error) {
 			return nil, errors.New("End < Start")
 		}
 
-		splitRange(0, 0, lo, hi, &cidrs)
+		splitRange4(0, 0, lo, hi, &cidrs)
 	} else {
 		return nil, errors.New("Not implemented")
 	}
