@@ -21,7 +21,7 @@ func uint32ToIPV4(addr uint32) net.IP {
 
 // The following functions are inspired by http://www.cs.colostate.edu/~somlo/iprange.c.
 
-// setBit sets the specified bit in an address to 0 or 1.
+// setBit4 sets the specified bit in an address to 0 or 1.
 func setBit4(addr uint32, bit uint, val int) uint32 {
 	if val == 0 {
 		return addr & ^(1 << (32 - bit))
@@ -29,7 +29,7 @@ func setBit4(addr uint32, bit uint, val int) uint32 {
 	return addr | (1 << (32 - bit))
 }
 
-// netmask returns the netmask for the specified prefix.
+// netmask4 returns the netmask for the specified prefix.
 func netmask4(prefix uint) uint32 {
 	if prefix == 0 {
 		return 0
@@ -37,17 +37,17 @@ func netmask4(prefix uint) uint32 {
 	return ^uint32((1 << (32 - prefix)) - 1)
 }
 
-// broadcast returns the broadcast address for the given address and prefix.
+// broadcast4 returns the broadcast address for the given address and prefix.
 func broadcast4(addr uint32, prefix uint) uint32 {
 	return addr | ^netmask4(prefix)
 }
 
-// network returns the network address for the given address and prefix.
+// network4 returns the network address for the given address and prefix.
 func network4(addr uint32, prefix uint) uint32 {
 	return addr & netmask4(prefix)
 }
 
-// splitRange recursively computes the CIDR blocks to cover the range lo to hi.
+// splitRange4 recursively computes the CIDR blocks to cover the range lo to hi.
 func splitRange4(addr uint32, prefix uint, lo, hi uint32, cidrs *[]*net.IPNet) error {
 	if prefix > 32 {
 		return fmt.Errorf("Invalid mask size: %d", prefix)
@@ -89,6 +89,7 @@ type cidrBlock4 struct {
 
 type cidrBlock4s []*cidrBlock4
 
+// newBlock4 returns a new IPv4 CIDR block.
 func newBlock4(ip net.IP, mask net.IPMask) *cidrBlock4 {
 	var block cidrBlock4
 

@@ -132,6 +132,12 @@ func TestIPRangeToCIDRs(t *testing.T) {
 			},
 			Error: false,
 		},
+		{
+			Lo:     "2001:0db8:0000:0000:0000:ff00:0042:8328",
+			Hi:     "2001:0db8:0000:0000:0000:ff00:0042:8329",
+			Output: []string{},
+			Error:  false,
+		},
 	}
 
 	for _, testCase := range testCases {

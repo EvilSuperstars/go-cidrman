@@ -6,6 +6,7 @@ package cidrmerge
 import (
 	"errors"
 	"fmt"
+	"math/big"
 	"net"
 )
 
@@ -30,7 +31,21 @@ func IPRangeToIPNets(start, end net.IP) ([]*net.IPNet, error) {
 
 		splitRange4(0, 0, lo, hi, &cidrs)
 	} else {
-		return nil, errors.New("Not implemented")
+		start6 := start.To16()
+		if start6 == nil {
+			return nil, fmt.Errorf("Invalid IP address: %v", start)
+		}
+		end6 := end.To16()
+		if end6 == nil {
+			return nil, fmt.Errorf("Invalid IP address: %v", end)
+		}
+
+		lo := ipv6ToUInt128(start6)
+		hi := ipv6ToUInt128(end6)
+		if hi.Cmp(lo) < 0 {
+			return nil, errors.New("End < Start")
+		}
+		splitRange6(big.NewInt(0), 0, lo, hi, &cidrs)
 	}
 
 	return cidrs, nil
