@@ -16,29 +16,38 @@ func uint128ToIPV6(addr *big.Int) net.IP {
 	return net.IP(addr.Bytes()).To16()
 }
 
-// netmask6 returns the netmask for the specified prefix.
-func netmask6(prefix uint) *big.Int {
-	if prefix == 0 {
-		return big.NewInt(0)
-	}
-
-	n := big.NewInt(1)
-	n.Lsh(n, 128-prefix)
-	n.Sub(n, big.NewInt(1))
-	return n.Not(n) // TODO Goes negative
+// copyUInt128 copies an unsigned 128-bit integer.
+func copyUInt128(x *big.Int) *big.Int {
+	return big.NewInt(0).SetBits(x.Bits())
 }
 
 // broadcast6 returns the broadcast address for the given address and prefix.
 func broadcast6(addr *big.Int, prefix uint) *big.Int {
-	n := netmask6(prefix)
-	n.Not(n) // TODO Goes negative
-	return addr.Or(addr, n)
+	z := copyUInt128(addr)
+
+	if prefix == 0 {
+		z, _ = z.SetString("340282366920938463463374607431768211455", 10)
+		return z
+	}
+
+	for i := int(prefix); i < 8*net.IPv6len; i++ {
+		z = z.SetBit(z, i, 1)
+	}
+	return z
 }
 
 // network6 returns the network address for the given address and prefix.
 func network6(addr *big.Int, prefix uint) *big.Int {
-	n := netmask6(prefix)
-	return addr.And(addr, n)
+	z := copyUInt128(addr)
+
+	if prefix == 0 {
+		return z
+	}
+
+	for i := int(prefix); i < 8*net.IPv6len; i++ {
+		z = z.SetBit(z, i, 0)
+	}
+	return z
 }
 
 // splitRange6 recursively computes the CIDR blocks to cover the range lo to hi.
@@ -48,6 +57,7 @@ func splitRange6(addr *big.Int, prefix uint, lo, hi *big.Int, cidrs *[]*net.IPNe
 	}
 
 	bc := broadcast6(addr, prefix)
+	fmt.Printf("%v/%v/%v/%v/%v\n", addr, prefix, lo, hi, bc)
 	if (lo.Cmp(addr) < 0) || (hi.Cmp(bc) > 0) {
 		return fmt.Errorf("%v, %v out of range for network %v/%d, broadcast %v", lo, hi, addr, prefix, bc)
 	}
