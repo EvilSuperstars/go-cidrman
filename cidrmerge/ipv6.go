@@ -18,7 +18,7 @@ func uint128ToIPV6(addr *big.Int) net.IP {
 
 // copyUInt128 copies an unsigned 128-bit integer.
 func copyUInt128(x *big.Int) *big.Int {
-	return big.NewInt(0).SetBits(x.Bits())
+	return big.NewInt(0).Set(x)
 }
 
 // broadcast6 returns the broadcast address for the given address and prefix.
@@ -69,8 +69,9 @@ func splitRange6(addr *big.Int, prefix uint, lo, hi *big.Int, cidrs *[]*net.IPNe
 	}
 
 	prefix++
-	lowerHalf := addr
-	upperHalf := big.NewInt(0).SetBit(addr, int(prefix), 1)
+	lowerHalf := copyUInt128(addr)
+	upperHalf := copyUInt128(addr)
+	upperHalf = upperHalf.SetBit(upperHalf, int(prefix), 1)
 	if hi.Cmp(upperHalf) < 0 {
 		return splitRange6(lowerHalf, prefix, lo, hi, cidrs)
 	} else if lo.Cmp(upperHalf) >= 0 {

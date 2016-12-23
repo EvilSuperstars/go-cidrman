@@ -29,7 +29,9 @@ func IPRangeToIPNets(start, end net.IP) ([]*net.IPNet, error) {
 			return nil, errors.New("End < Start")
 		}
 
-		splitRange4(0, 0, lo, hi, &cidrs)
+		if err := splitRange4(0, 0, lo, hi, &cidrs); err != nil {
+			return nil, err
+		}
 	} else {
 		start6 := start.To16()
 		if start6 == nil {
@@ -45,7 +47,9 @@ func IPRangeToIPNets(start, end net.IP) ([]*net.IPNet, error) {
 		if hi.Cmp(lo) < 0 {
 			return nil, errors.New("End < Start")
 		}
-		splitRange6(big.NewInt(0), 0, lo, hi, &cidrs)
+		if err := splitRange6(big.NewInt(0), 0, lo, hi, &cidrs); err != nil {
+			return nil, err
+		}
 	}
 
 	return cidrs, nil

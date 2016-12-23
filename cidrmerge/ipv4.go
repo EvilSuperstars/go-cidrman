@@ -160,8 +160,7 @@ func merge4(blocks cidrBlock4s) ([]*net.IPNet, error) {
 			continue
 		}
 
-		err := splitRange4(0, 0, block.first, block.last, &merged)
-		if err != nil {
+		if err := splitRange4(0, 0, block.first, block.last, &merged); err != nil {
 			return nil, err
 		}
 	}

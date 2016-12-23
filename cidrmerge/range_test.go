@@ -133,10 +133,20 @@ func TestIPRangeToCIDRs(t *testing.T) {
 			Error: false,
 		},
 		{
-			Lo:     "2001:0db8:0000:0000:0000:ff00:0042:8328",
-			Hi:     "2001:0db8:0000:0000:0000:ff00:0042:8329",
-			Output: []string{},
-			Error:  false,
+			Lo: "0000:0000:0000:0000:0000:0000:0000:0000",
+			Hi: "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+			Output: []string{
+				"0000:0000:0000:0000:0000:0000:0000:0000/0",
+			},
+			Error: false,
+		},
+		{
+			Lo: "2001:0db8:0000:0000:0000:ff00:0042:8328",
+			Hi: "2001:0db8:0000:0000:0000:ff00:0042:8328",
+			Output: []string{
+				"2001:0db8:0000:0000:0000:ff00:0042:8328/128",
+			},
+			Error: false,
 		},
 	}
 
