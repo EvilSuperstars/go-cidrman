@@ -1,7 +1,7 @@
 // Inspired by the Python netaddr cidr_merge function
 // https://netaddr.readthedocs.io/en/latest/api.html#netaddr.cidr_merge.
 
-package cidrmerge
+package cidrman
 
 import (
 	"errors"

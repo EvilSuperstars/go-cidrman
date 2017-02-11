@@ -1,7 +1,7 @@
 // Inspired by the Python netaddr iprange_to_cidrs function:
 // https://netaddr.readthedocs.io/en/latest/api.html#netaddr.iprange_to_cidrs.
 
-package cidrmerge
+package cidrman
 
 import (
 	"errors"

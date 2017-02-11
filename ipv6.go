@@ -1,4 +1,4 @@
-package cidrmerge
+package cidrman
 
 import (
 	"fmt"

@@ -1,6 +1,6 @@
 // go test -v -run="TestMergeCIDRs"
 
-package cidrmerge
+package cidrman
 
 import (
 	"reflect"
