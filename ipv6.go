@@ -21,6 +21,22 @@ func copyUInt128(x *big.Int) *big.Int {
 	return big.NewInt(0).Set(x)
 }
 
+// netmask6 returns the netmask for the specified prefix.
+func netmask6(prefix uint) *big.Int {
+	if prefix == 0 {
+		return big.NewInt(0)
+	}
+
+	// return ^uint32((1 << (32 - prefix)) - 1)
+
+	// netmask = self._module.max_int ^ self._hostmask_int
+	// _hostmask_int = (1 << (self._module.width - self._prefixlen)) - 1
+	// width = 128
+	// max_int = 2 ** width - 1
+
+	return nil
+}
+
 // broadcast6 returns the broadcast address for the given address and prefix.
 func broadcast6(addr *big.Int, prefix uint) *big.Int {
 	z := copyUInt128(addr)
