@@ -36,8 +36,8 @@ func setBit(addr uint32, bit uint, val uint) uint32 {
 	}
 }
 
-// netmask returns the netmask for the specified prefix.
-func netmask(prefix uint) uint32 {
+// netmask4 returns the netmask for the specified prefix.
+func netmask4(prefix uint) uint32 {
 	if prefix == 0 {
 		return 0
 	}
@@ -46,12 +46,12 @@ func netmask(prefix uint) uint32 {
 
 // broadcast4 returns the broadcast address for the given address and prefix.
 func broadcast4(addr uint32, prefix uint) uint32 {
-	return addr | ^netmask(prefix)
+	return addr | ^netmask4(prefix)
 }
 
 // network4 returns the network address for the given address and prefix.
 func network4(addr uint32, prefix uint) uint32 {
-	return addr & netmask(prefix)
+	return addr & netmask4(prefix)
 }
 
 // splitRange4 recursively computes the CIDR blocks to cover the range lo to hi.

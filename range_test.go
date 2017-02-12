@@ -156,6 +156,7 @@ func TestIPRangeToCIDRs(t *testing.T) {
 			if !testCase.Error {
 				t.Errorf("IPRangeToCIDRs(%s, %s) failed: %s", testCase.Lo, testCase.Hi, err.Error())
 			}
+			continue
 		}
 		if !reflect.DeepEqual(testCase.Output, output) {
 			t.Errorf("IPRangeToCIDRs(%s, %s) expected: %#v, got: %#v", testCase.Lo, testCase.Hi, testCase.Output, output)
