@@ -6,6 +6,8 @@ import (
 	"net"
 )
 
+var maxUInt128 = big.NewInt(0).Sub(big.NewInt(0).Exp(big.NewInt(2), big.NewInt(128), nil), big.NewInt(1))
+
 // ipv6ToUInt128 converts an IPv6 address to an unsigned 128-bit integer.
 func ipv6ToUInt128(ip net.IP) *big.Int {
 	return big.NewInt(0).SetBytes(ip)
@@ -21,48 +23,44 @@ func copyUInt128(x *big.Int) *big.Int {
 	return big.NewInt(0).Set(x)
 }
 
+// hostmask6 returns the hostmask for the specified prefix.
+func hostmask6(prefix uint) *big.Int {
+	z := big.NewInt(0)
+
+	z.Lsh(big.NewInt(1), 128-prefix)
+	z.Sub(z, big.NewInt(1))
+
+	return z
+}
+
 // netmask6 returns the netmask for the specified prefix.
 func netmask6(prefix uint) *big.Int {
+	z := big.NewInt(0)
+
 	if prefix == 0 {
-		return big.NewInt(0)
+		return z
 	}
 
-	// return ^uint32((1 << (32 - prefix)) - 1)
+	z.Xor(maxUInt128, hostmask6(prefix))
 
-	// netmask = self._module.max_int ^ self._hostmask_int
-	// _hostmask_int = (1 << (self._module.width - self._prefixlen)) - 1
-	// width = 128
-	// max_int = 2 ** width - 1
-
-	return nil
+	return z
 }
 
 // broadcast6 returns the broadcast address for the given address and prefix.
 func broadcast6(addr *big.Int, prefix uint) *big.Int {
-	z := copyUInt128(addr)
+	z := big.NewInt(0)
 
-	if prefix == 0 {
-		z, _ = z.SetString("340282366920938463463374607431768211455", 10)
-		return z
-	}
+	z.Or(addr, hostmask6(prefix))
 
-	for i := int(prefix); i < 8*net.IPv6len; i++ {
-		z = z.SetBit(z, i, 1)
-	}
 	return z
 }
 
 // network6 returns the network address for the given address and prefix.
 func network6(addr *big.Int, prefix uint) *big.Int {
-	z := copyUInt128(addr)
+	z := big.NewInt(0)
 
-	if prefix == 0 {
-		return z
-	}
+	z.And(addr, netmask6(prefix))
 
-	for i := int(prefix); i < 8*net.IPv6len; i++ {
-		z = z.SetBit(z, i, 0)
-	}
 	return z
 }
 

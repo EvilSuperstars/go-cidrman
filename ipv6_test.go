@@ -10,6 +10,7 @@ import (
 func TestIPv6(t *testing.T) {
 	type TestCase struct {
 		Input     string
+		Hostmask  string
 		Netmask   string
 		Broadcast string
 		Network   string
@@ -19,6 +20,7 @@ func TestIPv6(t *testing.T) {
 	testCases := []TestCase{
 		{
 			Input:     "",
+			Hostmask:  "",
 			Netmask:   "",
 			Broadcast: "",
 			Network:   "",
@@ -26,6 +28,7 @@ func TestIPv6(t *testing.T) {
 		},
 		{
 			Input:     "fe80::dead:beef/64",
+			Hostmask:  "::ffff:ffff:ffff:ffff",
 			Netmask:   "ffff:ffff:ffff:ffff::",
 			Broadcast: "fe80::ffff:ffff:ffff:ffff",
 			Network:   "fe80::",
@@ -43,6 +46,11 @@ func TestIPv6(t *testing.T) {
 		}
 
 		prefix, _ := net.Mask.Size()
+
+		hostmask := uint128ToIPV6(hostmask6(uint(prefix))).String()
+		if hostmask != testCase.Hostmask {
+			t.Errorf("Hostmask expected: %#v, got: %#v", testCase.Hostmask, hostmask)
+		}
 
 		netmask := uint128ToIPV6(netmask6(uint(prefix))).String()
 		if netmask != testCase.Netmask {
