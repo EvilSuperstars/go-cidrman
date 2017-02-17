@@ -3,9 +3,14 @@ package cidrman
 import (
 	"encoding/binary"
 	"fmt"
+	"math"
 	"net"
 	"sort"
 )
+
+const widthUInt32 = 32
+
+const maxUInt32 = math.MaxUint32
 
 // ipv4ToUInt32 converts an IPv4 address to an unsigned 32-bit integer.
 func ipv4ToUInt32(ip net.IP) uint32 {
@@ -36,17 +41,22 @@ func setBit(addr uint32, bit uint, val uint) uint32 {
 	}
 }
 
+// hostmask4 returns the hostmask for the specified prefix.
+func hostmask4(prefix uint) uint32 {
+	return (1 << (widthUInt32 - prefix)) - 1
+}
+
 // netmask4 returns the netmask for the specified prefix.
 func netmask4(prefix uint) uint32 {
 	if prefix == 0 {
 		return 0
 	}
-	return ^uint32((1 << (32 - prefix)) - 1)
+	return maxUInt32 ^ hostmask4(prefix)
 }
 
 // broadcast4 returns the broadcast address for the given address and prefix.
 func broadcast4(addr uint32, prefix uint) uint32 {
-	return addr | ^netmask4(prefix)
+	return addr | hostmask4(prefix)
 }
 
 // network4 returns the network address for the given address and prefix.

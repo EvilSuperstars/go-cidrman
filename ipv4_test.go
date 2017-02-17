@@ -10,6 +10,7 @@ import (
 func TestIPv4(t *testing.T) {
 	type TestCase struct {
 		Input     string
+		Hostmask  string
 		Netmask   string
 		Broadcast string
 		Network   string
@@ -19,13 +20,23 @@ func TestIPv4(t *testing.T) {
 	testCases := []TestCase{
 		{
 			Input:     "",
+			Hostmask:  "",
 			Netmask:   "",
 			Broadcast: "",
 			Network:   "",
 			Error:     true,
 		},
 		{
+			Input:     "0.0.0.0/0",
+			Hostmask:  "255.255.255.255",
+			Netmask:   "0.0.0.0",
+			Broadcast: "255.255.255.255",
+			Network:   "0.0.0.0",
+			Error:     false,
+		},
+		{
 			Input:     "192.0.2.0/24",
+			Hostmask:  "0.0.0.255",
 			Netmask:   "255.255.255.0",
 			Broadcast: "192.0.2.255",
 			Network:   "192.0.2.0",
@@ -33,9 +44,18 @@ func TestIPv4(t *testing.T) {
 		},
 		{
 			Input:     "192.0.3.112/22",
+			Hostmask:  "0.0.3.255",
 			Netmask:   "255.255.252.0",
 			Broadcast: "192.0.3.255",
 			Network:   "192.0.0.0",
+			Error:     false,
+		},
+		{
+			Input:     "192.168.1.151/32",
+			Hostmask:  "0.0.0.0",
+			Netmask:   "255.255.255.255",
+			Broadcast: "192.168.1.151",
+			Network:   "192.168.1.151",
 			Error:     false,
 		},
 	}
@@ -50,6 +70,11 @@ func TestIPv4(t *testing.T) {
 		}
 
 		prefix, _ := net.Mask.Size()
+
+		hostmask := uint32ToIPV4(hostmask4(uint(prefix))).String()
+		if hostmask != testCase.Hostmask {
+			t.Errorf("Hostmask expected: %#v, got: %#v", testCase.Hostmask, hostmask)
+		}
 
 		netmask := uint32ToIPV4(netmask4(uint(prefix))).String()
 		if netmask != testCase.Netmask {

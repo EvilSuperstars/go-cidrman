@@ -27,6 +27,14 @@ func TestIPv6(t *testing.T) {
 			Error:     true,
 		},
 		{
+			Input:     "::/0",
+			Hostmask:  "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+			Netmask:   "",
+			Broadcast: "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+			Network:   "",
+			Error:     false,
+		},
+		{
 			Input:     "fe80::dead:beef/64",
 			Hostmask:  "::ffff:ffff:ffff:ffff",
 			Netmask:   "ffff:ffff:ffff:ffff::",

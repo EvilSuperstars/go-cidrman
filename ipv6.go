@@ -6,7 +6,9 @@ import (
 	"net"
 )
 
-var maxUInt128 = big.NewInt(0).Sub(big.NewInt(0).Exp(big.NewInt(2), big.NewInt(128), nil), big.NewInt(1))
+const widthUInt128 = 128
+
+var maxUInt128 = big.NewInt(0).Sub(big.NewInt(0).Exp(big.NewInt(2), big.NewInt(widthUInt128), nil), big.NewInt(1))
 
 // ipv6ToUInt128 converts an IPv6 address to an unsigned 128-bit integer.
 func ipv6ToUInt128(ip net.IP) *big.Int {
@@ -27,7 +29,7 @@ func copyUInt128(x *big.Int) *big.Int {
 func hostmask6(prefix uint) *big.Int {
 	z := big.NewInt(0)
 
-	z.Lsh(big.NewInt(1), 128-prefix)
+	z.Lsh(big.NewInt(1), widthUInt128-prefix)
 	z.Sub(z, big.NewInt(1))
 
 	return z
@@ -66,7 +68,7 @@ func network6(addr *big.Int, prefix uint) *big.Int {
 
 // splitRange6 recursively computes the CIDR blocks to cover the range lo to hi.
 func splitRange6(addr *big.Int, prefix uint, lo, hi *big.Int, cidrs *[]*net.IPNet) error {
-	if prefix > 128 {
+	if prefix > widthUInt128 {
 		return fmt.Errorf("Invalid mask size: %d", prefix)
 	}
 
