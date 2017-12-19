@@ -17,10 +17,10 @@ func ipv6ToUInt128(ip net.IP) *big.Int {
 
 // uint128ToIPV6 converts an unsigned 128-bit integer to an IPv6 address.
 func uint128ToIPV6(addr *big.Int) net.IP {
-	if addr.Int64() == 0 {
-		return make([]byte, net.IPv6len)
-	}
-	return net.IP(addr.Bytes()).To16()
+	ip := make([]byte, net.IPv6len)
+	ab := addr.Bytes()
+	copy(ip[len(ip)-len(ab):], ab)
+	return ip
 }
 
 // copyUInt128 copies an unsigned 128-bit integer.
