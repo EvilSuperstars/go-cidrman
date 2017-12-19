@@ -33,9 +33,9 @@ func setBit(addr uint32, bit uint, val uint) uint32 {
 	}
 
 	if val == 0 {
-		return addr & ^(1 << (32 - bit))
+		return addr & ^(1 << (widthUInt32 - bit))
 	} else if val == 1 {
-		return addr | (1 << (32 - bit))
+		return addr | (1 << (widthUInt32 - bit))
 	} else {
 		panic("set bit is not 0 or 1")
 	}
@@ -66,7 +66,7 @@ func network4(addr uint32, prefix uint) uint32 {
 
 // splitRange4 recursively computes the CIDR blocks to cover the range lo to hi.
 func splitRange4(addr uint32, prefix uint, lo, hi uint32, cidrs *[]*net.IPNet) error {
-	if prefix > 32 {
+	if prefix > widthUInt32 {
 		return fmt.Errorf("Invalid mask size: %d", prefix)
 	}
 

@@ -42,6 +42,14 @@ func TestIPv6(t *testing.T) {
 			Network:   "fe80::",
 			Error:     false,
 		},
+		{
+			Input:     "2001:0db8:0000:0000:0000:ff00:0042:8328/128",
+			Hostmask:  "::",
+			Netmask:   "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+			Broadcast: "2001:db8::ff00:42:8328",
+			Network:   "2001:db8::ff00:42:8328",
+			Error:     false,
+		},
 	}
 
 	for _, testCase := range testCases {
