@@ -29,9 +29,9 @@ func TestIPv6(t *testing.T) {
 		{
 			Input:     "::/0",
 			Hostmask:  "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
-			Netmask:   "",
+			Netmask:   "::",
 			Broadcast: "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
-			Network:   "",
+			Network:   "::",
 			Error:     false,
 		},
 		{
@@ -57,24 +57,24 @@ func TestIPv6(t *testing.T) {
 
 		hostmask := uint128ToIPV6(hostmask6(uint(prefix))).String()
 		if hostmask != testCase.Hostmask {
-			t.Errorf("Hostmask expected: %#v, got: %#v", testCase.Hostmask, hostmask)
+			t.Errorf("Hostmask(%#v) expected: %#v, got: %#v", testCase.Input, testCase.Hostmask, hostmask)
 		}
 
 		netmask := uint128ToIPV6(netmask6(uint(prefix))).String()
 		if netmask != testCase.Netmask {
-			t.Errorf("Netmask expected: %#v, got: %#v", testCase.Netmask, netmask)
+			t.Errorf("Netmask(%#v) expected: %#v, got: %#v", testCase.Input, testCase.Netmask, netmask)
 		}
 
 		addr := ipv6ToUInt128(ip.To16())
 
 		broadcast := uint128ToIPV6(broadcast6(addr, uint(prefix))).String()
 		if broadcast != testCase.Broadcast {
-			t.Errorf("Broadcast expected: %#v, got: %#v", testCase.Broadcast, broadcast)
+			t.Errorf("Broadcast(%#v) expected: %#v, got: %#v", testCase.Input, testCase.Broadcast, broadcast)
 		}
 
 		network := uint128ToIPV6(network6(addr, uint(prefix))).String()
 		if network != testCase.Network {
-			t.Errorf("Network expected: %#v, got: %#v", testCase.Network, network)
+			t.Errorf("Network(%#v) expected: %#v, got: %#v", testCase.Input, testCase.Network, network)
 		}
 	}
 }
