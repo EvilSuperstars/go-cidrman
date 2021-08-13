@@ -13,7 +13,14 @@ func ipv6ToUInt128(ip net.IP) *big.Int {
 
 // uint128ToIPV6 converts an unsigned 128-bit integer to an IPv6 address.
 func uint128ToIPV6(addr *big.Int) net.IP {
-	return net.IP(addr.Bytes()).To16()
+	addrB := addr.Bytes()
+	addrLen := len(addrB)
+	b := make([]byte, net.IPv6len-addrLen)
+	for i := 0; i < net.IPv6len-addrLen; i++ {
+		b[i] = 0
+	}
+	b = append(b, addrB...)
+	return net.IP(b).To16()
 }
 
 // copyUInt128 copies an unsigned 128-bit integer.
@@ -23,16 +30,16 @@ func copyUInt128(x *big.Int) *big.Int {
 
 // broadcast6 returns the broadcast address for the given address and prefix.
 func broadcast6(addr *big.Int, prefix uint) *big.Int {
-	z := copyUInt128(addr)
+	z := big.NewInt(0)
 
 	if prefix == 0 {
 		z, _ = z.SetString("340282366920938463463374607431768211455", 10)
 		return z
 	}
 
-	for i := int(prefix); i < 8*net.IPv6len; i++ {
-		z = z.SetBit(z, i, 1)
-	}
+	z = z.SetBit(big.NewInt(0), int(128-prefix), 1)
+	z.Sub(z, big.NewInt(1))
+	z.Or(addr, z)
 	return z
 }
 
@@ -71,7 +78,7 @@ func splitRange6(addr *big.Int, prefix uint, lo, hi *big.Int, cidrs *[]*net.IPNe
 	prefix++
 	lowerHalf := copyUInt128(addr)
 	upperHalf := copyUInt128(addr)
-	upperHalf = upperHalf.SetBit(upperHalf, int(prefix), 1)
+	upperHalf = upperHalf.SetBit(upperHalf, int(128-prefix), 1)
 	if hi.Cmp(upperHalf) < 0 {
 		return splitRange6(lowerHalf, prefix, lo, hi, cidrs)
 	} else if lo.Cmp(upperHalf) >= 0 {

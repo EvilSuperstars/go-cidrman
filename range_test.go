@@ -136,7 +136,8 @@ func TestIPRangeToCIDRs(t *testing.T) {
 			Lo: "0000:0000:0000:0000:0000:0000:0000:0000",
 			Hi: "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
 			Output: []string{
-				"0000:0000:0000:0000:0000:0000:0000:0000/0",
+				//	ipv6 abbreviation
+				"::/0",
 			},
 			Error: false,
 		},
@@ -144,7 +145,7 @@ func TestIPRangeToCIDRs(t *testing.T) {
 			Lo: "2001:0db8:0000:0000:0000:ff00:0042:8328",
 			Hi: "2001:0db8:0000:0000:0000:ff00:0042:8328",
 			Output: []string{
-				"2001:0db8:0000:0000:0000:ff00:0042:8328/128",
+				"2001:db8::ff00:42:8328/128",
 			},
 			Error: false,
 		},
