@@ -4,7 +4,6 @@
 package cidrman
 
 import (
-	"errors"
 	"net"
 )
 
@@ -53,7 +52,7 @@ func MergeIPNets(nets []*net.IPNet) ([]*net.IPNet, error) {
 		return nil, err
 	}
 
-	merged := append(merged4, merged6)
+	merged := append(merged4, merged6...)
 	return merged, nil
 }
 
