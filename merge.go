@@ -32,20 +32,28 @@ func MergeIPNets(nets []*net.IPNet) ([]*net.IPNet, error) {
 	// Split into IPv4 and IPv6 lists.
 	// Merge the list separately and then combine.
 	var block4s cidrBlock4s
+	var block6s cidrBlock6s
 	for _, net := range nets {
 		ip4 := net.IP.To4()
 		if ip4 != nil {
 			block4s = append(block4s, newBlock4(ip4, net.Mask))
 		} else {
-			return nil, errors.New("Not implemented")
+			ip6 := net.IP.To16()
+			block6s = append(block6s, newBlock6(ip6, net.Mask))
 		}
 	}
 
-	merged, err := merge4(block4s)
+	merged4, err := merge4(block4s)
 	if err != nil {
 		return nil, err
 	}
 
+	merged6, err := merge6(block6s)
+	if err != nil {
+		return nil, err
+	}
+
+	merged := append(merged4, merged6)
 	return merged, nil
 }
 
