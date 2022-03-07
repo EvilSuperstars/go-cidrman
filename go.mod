@@ -1,3 +1,3 @@
-module github.com/Netnod/go-cidrman
+module github.com/EvilSuperstars/go-cidrman
 
 go 1.12
